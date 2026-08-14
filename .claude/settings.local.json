@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git init)",
+      "Bash(rm -f tester-result.txt quality-result.txt)",
+      "Bash(bash scripts/check-quality-gate.sh)",
+      "Bash(\"d:/bili_heima_vibecoding/LongChainRAG项目/backend/venv/Scripts/python.exe\" -m pytest *)",
+      "Bash(\"d:/bili_heima_vibecoding/LongChainRAG项目/frontend/node_modules/.bin/vitest\" run *)",
+      "Bash(cd frontend && npx vitest run *)",
+      "Bash(cd backend && venv/Scripts/python.exe -m pytest *)",
+      "Bash(\"d:/bili_heima_vibecoding/LongChainRAG项目/backend/venv/Scripts/python.exe\" -m uvicorn *)",
+      "Bash(\"d:/bili_heima_vibecoding/LongChainRAG项目/backend/venv/Scripts/python.exe\" start.py)",
+      "Bash(cd frontend && npm run dev)",
+      "Bash(cd frontend && npx vite build)",
+      "Bash(cd frontend && npm install *)",
+      "Bash(cd backend && venv/Scripts/python.exe -m pip install *)",
+      "Bash(taskkill //F //IM python.exe)",
+      "Bash(netstat -ano | findstr :8000)",
+      "Bash(mkdir -p *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"d:/bili_heima_vibecoding/LongChainRAG项目/scripts/check-quality-gate.sh\" 1>&2",
+            "if": "Bash(git commit:*)",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
