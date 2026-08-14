@@ -24,7 +24,8 @@
       "Bash(netstat -ano | findstr :8000)",
       "Bash(mkdir -p *)",
       "Bash(npx tsc *)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(d:/bili_heima_vibecoding/LongChainRAG项目/backend/venv/Scripts/python.exe -c ' *)"
     ]
   },
   "hooks": {

@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.database import engine, AsyncSessionLocal
+from app.database import engine, AsyncSessionLocal, enable_wal_mode
 from app.models.base import Base
 from app.models.user import User
 from app.models.conversation import Conversation
@@ -21,6 +21,9 @@ async def lifespan(app: FastAPI):
     # Startup: create tables and seed admin
     os.makedirs("data/raw", exist_ok=True)
     os.makedirs("data/chroma", exist_ok=True)
+
+    # 启用 SQLite WAL 模式（并发读写加固，压力测试前优化）
+    await enable_wal_mode()
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
