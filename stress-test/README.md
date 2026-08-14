@@ -14,16 +14,52 @@
 
 ## 使用方法
 
-### 1. 创建压测用户（100 个）
+### 0. 创建压测用户（100 个）
 
 ```bash
 cd stress-test
 ../backend/venv/Scripts/python.exe seed_users.py
 ```
 
-### 2. 执行压测（三阶段）
+### 方式一：Web UI 交互模式（推荐调试 / 答辩演示）
+
+适合手动设置并发、实时观察测试过程。
+
+#### 1. 启动 Locust Web 界面
 
 ```bash
+cd stress-test
+../backend/venv/Scripts/python.exe -m locust -f locustfile.py --host http://localhost:8000
+```
+
+终端出现 `Starting web interface at http://0.0.0.0:8089` 后，浏览器打开：
+
+**http://localhost:8089**
+
+#### 2. 在 Web UI 中设置并启动
+
+| 设置项 | 说明 | 示例 |
+|--------|------|------|
+| Number of users | 并发用户总数 | 100 |
+| Spawn rate | 每秒爬升的用户数 | 10（10 秒爬满 100） |
+| Host | 后端地址（启动命令已指定） | http://localhost:8000 |
+| Class picker | 选择用户场景 | NormalUser（问答+对话）/ AdminUser（知识库管理） |
+
+点 **Start** 开始，点 **Stop** 停止，可随时修改并发数重启。
+
+#### 3. 实时看板
+
+- **Statistics**：每个接口的 Requests / Failures / 平均响应时间 / RPS
+- **Charts**：总 RPS、响应时间、活跃用户数实时曲线图
+- **Failures**：失败请求详情
+
+### 方式二：Headless 命令行模式（无人值守三阶段批量测试）
+
+适合一次性跑完阶梯并发并自动生成报告文件（论文数据收集）。
+
+```bash
+cd stress-test
+
 # 阶段 1：热身（10 用户 × 2 分钟）— 验证脚本 + 预热缓存
 ../backend/venv/Scripts/python.exe -m locust -f locustfile.py --host http://localhost:8000 \
   --headless -u 10 -r 2 --run-time 2m --html report-phase1.html
@@ -37,7 +73,7 @@ cd stress-test
   --headless -u 100 -r 10 --run-time 5m --html report-phase3.html --csv phase3
 ```
 
-### 3. 查看结果
+### 查看结果（headless 模式）
 
 - `report-phaseX.html`：Locust 完整报告（浏览器打开）
 - `phaseX_stats.csv`：分接口统计数据（论文图表数据源）
