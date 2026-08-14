@@ -22,7 +22,9 @@
       "Bash(cd backend && venv/Scripts/python.exe -m pip install *)",
       "Bash(taskkill //F //IM python.exe)",
       "Bash(netstat -ano | findstr :8000)",
-      "Bash(mkdir -p *)"
+      "Bash(mkdir -p *)",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)"
     ]
   },
   "hooks": {
