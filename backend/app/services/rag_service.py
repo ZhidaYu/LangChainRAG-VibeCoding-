@@ -38,8 +38,8 @@ class RagService:
         self, question: str, history_messages: list = None
     ) -> AsyncGenerator[str, None]:
         """Stream RAG response: retrieval -> prompt -> LLM -> yield tokens."""
-        # 1. Retrieve
-        sources = retrieve_context(question)
+        # 1. Retrieve (异步检索，不阻塞事件循环)
+        sources = await retrieve_context(question)
         context = self._build_context(sources)
         history = self._build_history(history_messages or [])
 

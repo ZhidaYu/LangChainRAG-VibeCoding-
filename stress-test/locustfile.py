@@ -1,13 +1,12 @@
 """电商RAG知识库问答系统 — 压力测试场景（Locust）。
 
 模拟 100 人同时使用的真实行为：
-- 普通用户（weight=100）：登录 → 建对话 → 循环 [提问(SSE流式等答案) / 浏览对话列表 / 查看历史消息 / 新建对话 / 个人中心]，思考间隔 8-20 秒
-- 管理员（weight=1）：登录 → 循环 [知识库文档列表 / 知识库统计]
+- 普通用户（weight=100）：登录 → 建对话 → 循环 [提问(SSE流式等答案) / 浏览对话列表 / 查看历史消息 / 新建对话 / 注册新用户 / 个人中心]，思考间隔 8-20 秒
+- 管理员（weight=10）：登录 → 循环 [知识库文档列表 / 知识库统计]，间隔 2-5 秒（保证 KB 接口有足够请求量）
 
 运行方式（在 stress-test 目录下）：
-    阶段1 热身: locust -f locustfile.py --headless -u 10 -r 2 --run-time 2m --html report-phase1.html
-    阶段2 50用户: locust -f locustfile.py --headless -u 50 -r 5 --run-time 5m --html report-phase2.html
-    阶段3 100用户: locust -f locustfile.py --headless -u 100 -r 10 --run-time 5m --html report-phase3.html
+    Web UI:  locust -f locustfile.py --host http://localhost:8000  →  浏览器 http://localhost:8089
+    Headless: locust -f locustfile.py --host http://localhost:8000 --headless -u 100 -r 10 --run-time 5m --html report.html
 """
 import json
 import os
@@ -121,6 +120,19 @@ class NormalUser(HttpUser):
         )
 
     @task(1)
+    def register_user(self):
+        """注册新用户（唯一用户名，模拟新用户流入）。"""
+        username = f"stress_reg_{random.randint(100000, 999999)}"
+        with self.client.post(
+            f"{BASE}/auth/register",
+            json={"username": username, "password": PASSWORD},
+            name="/api/auth/register (注册)",
+            catch_response=True,
+        ) as resp:
+            if resp.status_code != 200:
+                resp.failure(f"注册失败 HTTP {resp.status_code}: {resp.text[:200]}")
+
+    @task(1)
     def get_me(self):
         """个人中心。"""
         self.client.get(
@@ -131,10 +143,14 @@ class NormalUser(HttpUser):
 
 
 class AdminUser(HttpUser):
-    """管理员：知识库管理操作（全接口覆盖）。"""
+    """管理员：知识库管理操作（全接口覆盖）。
 
-    weight = 1  # 100:1 比例，100 用户场景中约 1 个管理员
-    wait_time = between(15, 30)
+    weight=10：100 用户场景中约 9 个管理员，
+    wait_time 2-5 秒保证 KB 接口有足够的请求样本量（对齐教程场景 C）。
+    """
+
+    weight = 10
+    wait_time = between(2, 5)
 
     def on_start(self):
         with self.client.post(

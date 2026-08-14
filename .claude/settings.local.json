@@ -25,7 +25,9 @@
       "Bash(mkdir -p *)",
       "Bash(npx tsc *)",
       "Bash(npx vite *)",
-      "Bash(d:/bili_heima_vibecoding/LongChainRAG项目/backend/venv/Scripts/python.exe -c ' *)"
+      "Bash(d:/bili_heima_vibecoding/LongChainRAG项目/backend/venv/Scripts/python.exe -c ' *)",
+      "Bash(git commit -m 'feat: 压力测试 — SQLite并发加固 + Locust 100用户压测脚本与报告 *)",
+      "Bash(\"../backend/venv/Scripts/python.exe\" -m locust -f locustfile.py --host http://localhost:8000)"
     ]
   },
   "hooks": {
